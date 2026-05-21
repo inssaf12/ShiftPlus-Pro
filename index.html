@@ -189,11 +189,45 @@
                 <p class="text-xs text-slate-400">Consulta tus turnos asignados y tareas activas en tiempo real.</p>
             </div>
 
-            <div id="shifts-container" class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 block clear-both"></div>
+            <div id="audio-alarm-panel" class="mb-6 p-4 glass-card rounded-2xl border border-indigo-500/20 bg-indigo-950/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" style="display: none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                        <i id="alarm-icon-state" class="fa-solid fa-volume-xmark"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider">Avisos acústicos de jornada</h4>
+                        <p class="text-[11px] text-slate-400">¿Quieres que suene un aviso cuando llegue la hora de entrada de tu turno?</p>
+                    </div>
+                </div>
+                <button id="btn-toggle-audio" onclick="toggleAudioAlarm()" class="w-full sm:w-auto px-4 py-2 bg-slate-800 text-slate-400 rounded-xl text-xs font-extrabold uppercase tracking-wider border border-slate-700/50 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-power-off"></i> <span>Desactivadas</span>
+                </button>
+            </div>
+
+            <div id="shifts-container" class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 block clear-both mb-8"></div>
+
+            <section id="alerts-section" class="w-full block clear-both mt-8">
+                <div class="glass-card p-6 rounded-3xl w-full block">
+                    <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-satellite-dish text-indigo-400"></i> Alertas de Comunicación Interna
+                    </h3>
+                    <div id="alerts-log-container" class="space-y-3">
+                        <div class="p-4 bg-white/5 rounded-xl border border-white/5 text-center text-xs text-slate-500">
+                            No se han registrado eventos o alertas de transmisión en esta sesión.
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
     <script>
+        let audioAlarmEnabled = false;
+        let currentUserLoggedIn = "";
+        let audioContextInstance = null;
+        let alarmCheckerInterval = null;
+        let turnosYaAvisados = new Set();
+
         function inicializarDB() {
             try {
                 if (!sessionStorage.getItem('turns_db')) {
@@ -204,50 +238,197 @@
                     ];
                     sessionStorage.setItem('turns_db', JSON.stringify(initialTurns));
                 }
+                if (!sessionStorage.getItem('alerts_db')) {
+                    sessionStorage.setItem('alerts_db', JSON.stringify([]));
+                }
             } catch (e) {
-                console.error("Error inicializando base de datos local:", e);
+                console.error("Error inicializando bases de datos locales:", e);
             }
         }
         inicializarDB();
 
         function getTurns() { 
-            try {
-                return JSON.parse(sessionStorage.getItem('turns_db')) || []; 
-            } catch(e) {
-                return [];
-            }
+            try { return JSON.parse(sessionStorage.getItem('turns_db')) || []; } catch(e) { return []; }
         }
         
         function saveTurns(array) { 
-            try {
-                sessionStorage.setItem('turns_db', JSON.stringify(array)); 
-            } catch(e) {
-                console.error("Error guardando turnos:", e);
-            }
+            try { sessionStorage.setItem('turns_db', JSON.stringify(array)); } catch(e) { console.error(e); }
+        }
+
+        function getAlerts() {
+            try { return JSON.parse(sessionStorage.getItem('alerts_db')) || []; } catch(e) { return []; }
+        }
+
+        function saveAlerts(array) {
+            try { sessionStorage.setItem('alerts_db', JSON.stringify(array)); } catch(e) { console.error(e); }
         }
 
         function solicitarPermisoNotificaciones() {
-            if (!("Notification" in window)) return;
-            Notification.requestPermission().then(permiso => {
-                if (permiso === "granted") {
+            if ("Notification" in window) {
+                Notification.requestPermission().then(permiso => {
+                    if (permiso === "granted") {
+                        actualizarBotonAlarmas();
+                        try {
+                            new Notification("ShiftPlus Live", { body: "🔔 Sistema de alertas del sistema activo." });
+                        } catch(e) {
+                            alert("🔔 ShiftPlus Live: Sistema de alarmas activo en este dispositivo.");
+                        }
+                    } else {
+                        alert("🔔 ShiftPlus: Las alertas en tiempo real se han activado mediante fallback del sistema.");
+                        actualizarBotonAlarmas();
+                    }
+                }).catch(() => {
+                    alert("🔔 ShiftPlus: Monitorización de flujos críticos activada.");
                     actualizarBotonAlarmas();
-                    new Notification("ShiftPlus Live", { body: "🔔 Sistema de alarmas del sistema activo." });
-                }
-            });
+                });
+            } else {
+                alert("🔔 ShiftPlus Live:\n\nEl sistema de alertas en tiempo real se ha sincronizado correctamente con tu dispositivo móvil.");
+                actualizarBotonAlarmas();
+            }
         }
 
         function actualizarBotonAlarmas() {
             const btn = document.getElementById('btn-alarmas');
             if(btn) {
-                btn.className = "bg-emerald-500/10 text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 border border-emerald-500/20";
-                btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span class="hidden sm:inline">Activas</span>`;
+                btn.className = "bg-emerald-500/15 text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 border border-emerald-500/30 shadow-lg shadow-emerald-500/5";
+                btn.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>Activas</span>`;
             }
         }
 
+        function emitirPitidoAlarma() {
+            try {
+                if (!audioContextInstance) {
+                    audioContextInstance = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                let tiempoCod = audioContextInstance.currentTime;
+                for (let i = 0; i < 3; i++) {
+                    let osc = audioContextInstance.createOscillator();
+                    let gain = audioContextInstance.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, tiempoCod + (i * 0.3));
+                    gain.gain.setValueAtTime(0.5, tiempoCod + (i * 0.3));
+                    gain.gain.exponentialRampToValueAtTime(0.01, tiempoCod + (i * 0.3) + 0.2);
+                    osc.connect(gain);
+                    gain.connect(audioContextInstance.destination);
+                    osc.start(tiempoCod + (i * 0.3));
+                    osc.stop(tiempoCod + (i * 0.3) + 0.25);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function toggleAudioAlarm() {
+            const btn = document.getElementById('btn-toggle-audio');
+            const icon = document.getElementById('alarm-icon-state');
+            
+            if (!audioContextInstance) {
+                audioContextInstance = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            if (!audioAlarmEnabled) {
+                audioAlarmEnabled = true;
+                btn.className = "w-full sm:w-auto px-4 py-2 bg-emerald-500/15 text-emerald-400 rounded-xl text-xs font-extrabold uppercase tracking-wider border border-emerald-500/30 shadow-lg shadow-emerald-500/5 flex items-center justify-center gap-2";
+                btn.innerHTML = `<i class="fa-solid fa-volume-high"></i> <span>Sincronizado</span>`;
+                if(icon) icon.className = "fa-solid fa-volume-high text-emerald-400";
+                emitirPitidoAlarma();
+            } else {
+                audioAlarmEnabled = false;
+                btn.className = "w-full sm:w-auto px-4 py-2 bg-slate-800 text-slate-400 rounded-xl text-xs font-extrabold uppercase tracking-wider border border-slate-700/50 flex items-center justify-center gap-2";
+                btn.innerHTML = `<i class="fa-solid fa-power-off"></i> <span>Desactivadas</span>`;
+                if(icon) icon.className = "fa-solid fa-volume-xmark text-slate-400";
+            }
+        }
+
+        function arrancarMotorVerificacionHoraria() {
+            if (alarmCheckerInterval) clearInterval(alarmCheckerInterval);
+            
+            alarmCheckerInterval = setInterval(() => {
+                if (!audioAlarmEnabled || !currentUserLoggedIn || currentUserLoggedIn === 'admin') return;
+                
+                const ahora = new Date();
+                const horaActualStr = String(ahora.getHours()).padStart(2, '0') + ":" + String(ahora.getMinutes()).padStart(2, '0');
+                
+                const turnosDisponibles = getTurns();
+                const turnoInminente = turnosDisponibles.find(t => t && t.worker === currentUserLoggedIn && t.start === horaActualStr);
+                
+                if (turnoInminente) {
+                    const llaveRegistro = `${turnoInminente.id}-${horaActualStr}`;
+                    
+                    if (!turnosYaAvisados.has(llaveRegistro)) {
+                        turnosYaAvisados.add(llaveRegistro);
+                        emitirPitidoAlarma();
+                        
+                        // Añadir evento al log de alertas móvil también
+                        registrarAlertaEnLog(currentUserLoggedIn, `¡Hora de entrada alcanzada! Comienza tu turno de ${turnoInminente.start}.`);
+                        
+                        setTimeout(() => {
+                            alert(`🚨 ¡ALERTA DE TURNO ACTIVA!\n\nHola ${currentUserLoggedIn.toUpperCase()}, acaba de llegar la hora de entrada (${turnoInminente.start}).\n\nMisión asignada:\n"${turnoInminente.task}"`);
+                        }, 50);
+                    }
+                }
+            }, 10000);
+        }
+
+        // Función encargada de registrar la alerta en la memoria global y refrescar la UI
+        function registrarAlertaEnLog(trabajador, mensaje) {
+            let alertas = getAlerts();
+            const ahora = new Date();
+            const tiempoStr = String(ahora.getHours()).padStart(2, '0') + ":" + String(ahora.getMinutes()).padStart(2, '0');
+            
+            alertas.unshift({
+                id: Date.now(),
+                worker: trabajador.toLowerCase(),
+                time: tiempoStr,
+                msg: mensaje
+            });
+            
+            // Limitamos a un máximo de 10 alertas para no saturar memoria
+            if (alertas.length > 10) alertas.pop();
+            saveAlerts(alertas);
+            
+            renderAlertsLog();
+        }
+
+        function renderAlertsLog() {
+            const container = document.getElementById('alerts-log-container');
+            if (!container) return;
+            
+            const alertas = getAlerts();
+            // Filtrar las alertas según quién esté mirando (el admin ve todas, el trabajador solo las suyas)
+            const filtradas = currentUserLoggedIn === 'admin' ? alertas : alertas.filter(a => a.worker === currentUserLoggedIn);
+            
+            if (filtradas.length === 0) {
+                container.innerHTML = `
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/5 text-center text-xs text-slate-500">
+                        No se han registrado eventos o alertas de transmisión en esta sesión.
+                    </div>`;
+                return;
+            }
+            
+            container.innerHTML = filtradas.map(a => `
+                <div class="p-3.5 bg-indigo-500/5 rounded-xl border border-indigo-500/10 flex items-start gap-3 animate-fadeIn">
+                    <div class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs mt-0.5 shrink-0">
+                        <i class="fa-solid fa-comment-sms"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-0.5">
+                            <span class="text-xs font-bold text-white uppercase tracking-wider">${a.worker.toUpperCase()}</span>
+                            <span class="text-[10px] text-slate-500 font-semibold"><i class="fa-regular fa-clock mr-1"></i>${a.time}</span>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">${a.msg}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         function lanzarNotificacionNuevoTurno(trabajador, tarea) {
+            // 1. Notificación nativa flotante si se tienen permisos (PC)
             if (window.Notification && Notification.permission === "granted") {
                 new Notification("🚀 Nuevo Turno Asignado", { body: `Operario: ${trabajador.toUpperCase()} -> Tarea: ${tarea}` });
             }
+            // 2. Registro inmediato en el log visual (Móvil / Plan B)
+            registrarAlertaEnLog(trabajador, `Se te ha asignado un nuevo turno para realizar la tarea: "${tarea}".`);
         }
 
         function generarEnlaceCalendar(tarea, fecha, horaInicio, horaFin) {
@@ -257,9 +438,7 @@
                 const cleanInicio = horaInicio ? String(horaInicio).replace(/:/g, '') + '00' : "090000";
                 const cleanFin = horaFin ? String(horaFin).replace(/:/g, '') + '00' : "170000";
                 return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Turno: ' + cleanTarea)}&dates=${cleanFecha}T${cleanInicio}/${cleanFecha}T${cleanFin}&details=Gestionado+en+ShiftPlus.&sf=true&output=xml`;
-            } catch(e) {
-                return '#';
-            }
+            } catch(e) { return '#'; }
         }
 
         let esAdminEtapa = false;
@@ -312,6 +491,7 @@
         }
 
         function showApp(isAdmin, name) {
+            currentUserLoggedIn = name;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app-interface').style.display = 'block';
             
@@ -320,14 +500,19 @@
             
             if (window.Notification && Notification.permission === "granted") { actualizarBotonAlarmas(); }
 
+            renderAlertsLog();
+
             if (isAdmin) {
                 document.getElementById('admin-view').style.display = 'block';
                 document.getElementById('worker-welcome').style.display = 'none';
+                document.getElementById('audio-alarm-panel').style.display = 'none';
                 renderTurns(true, "admin");
             } else {
                 document.getElementById('admin-view').style.display = 'none';
                 document.getElementById('worker-welcome').style.display = 'block';
+                document.getElementById('audio-alarm-panel').style.display = 'flex';
                 renderTurns(false, name);
+                arrancarMotorVerificacionHoraria();
             }
         }
 
@@ -338,7 +523,6 @@
             container.innerHTML = "";
             const currentTurns = getTurns();
             
-            // Protección total frente a undefined y filtros vacíos
             const searchUser = filterUser ? String(filterUser).toLowerCase() : "";
             const list = isAdmin ? currentTurns : currentTurns.filter(t => t && t.worker === searchUser);
 
@@ -352,7 +536,7 @@
             }
 
             list.forEach((t) => {
-                if (!t) return; // Salta elementos corruptos si los hubiera
+                if (!t) return; 
                 
                 const urlCalendar = generarEnlaceCalendar(t.task, t.date, t.start, t.end);
                 const workerName = t.worker ? String(t.worker).toUpperCase() : "DESCONOCIDO";
@@ -438,9 +622,14 @@
 
         function logout() {
             esAdminEtapa = false;
+            audioAlarmEnabled = false;
+            currentUserLoggedIn = "";
+            if (alarmCheckerInterval) clearInterval(alarmCheckerInterval);
+            
             document.getElementById('app-interface').style.display = 'none';
             document.getElementById('admin-view').style.display = 'none';
             document.getElementById('worker-welcome').style.display = 'none';
+            document.getElementById('audio-alarm-panel').style.display = 'none';
             
             const passContainer = document.getElementById('pass-container');
             if (passContainer) passContainer.style.display = 'none';
