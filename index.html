@@ -283,18 +283,26 @@
     </div>
 
     <script>
-        // BASE DE DATOS LOCAL
-        if (!sessionStorage.getItem('turns_db')) {
-            const initialTurns = [
-                { id: 1, worker: "maria", date: "2026-05-18", start: "09:00", end: "15:00", task: "Soporte Técnico y Atención de Incidencias L1" },
-                { id: 2, worker: "juan", date: "2026-05-18", start: "16:00", end: "22:00", task: "Supervisor de Sistemas Críticos Cloud" },
-                { id: 3, worker: "alex", date: "2026-05-19", start: "08:00", end: "16:00", task: "Auditoría de Ciberseguridad Perimetral" }
-            ];
-            sessionStorage.setItem('turns_db', JSON.stringify(initialTurns));
+        // INICIALIZACIÓN COMPLETA DE BASE DE DATOS LOCAL
+        function inicializarDB() {
+            if (!sessionStorage.getItem('turns_db')) {
+                const initialTurns = [
+                    { id: 1, worker: "maria", date: "2026-05-18", start: "09:00", end: "15:00", task: "Soporte Técnico y Atención de Incidencias L1" },
+                    { id: 2, worker: "juan", date: "2026-05-18", start: "16:00", end: "22:00", task: "Supervisor de Sistemas Críticos Cloud" },
+                    { id: 3, worker: "alex", date: "2026-05-19", start: "08:00", end: "16:00", task: "Auditoría de Ciberseguridad Perimetral" }
+                ];
+                sessionStorage.setItem('turns_db', JSON.stringify(initialTurns));
+            }
         }
+        inicializarDB();
 
-        function getTurns() { return JSON.parse(sessionStorage.getItem('turns_db')); }
-        function saveTurns(array) { sessionStorage.setItem('turns_db', JSON.stringify(array)); }
+        function getTurns() { 
+            return JSON.parse(sessionStorage.getItem('turns_db')) || []; 
+        }
+        
+        function saveTurns(array) { 
+            sessionStorage.setItem('turns_db', JSON.stringify(array)); 
+        }
 
         function solicitarPermisoNotificaciones() {
             if (!("Notification" in window)) return;
@@ -323,13 +331,9 @@
         }
 
         function generarEnlaceCalendar(tarea, fecha, horaInicio, horaFin) {
-            // Limpiamos los guiones de la fecha: "2026-05-18" -> "20260518"
             const fechaFormateada = fecha.replace(/-/g, '');
-            // Limpiamos los dos puntos de las horas y concatenamos segundos '00': "09:00" -> "090000"
             const inicioFormateado = horaInicio.replace(/:/g, '') + '00';
             const finFormateado = horaFin.replace(/:/g, '') + '00';
-            
-            // Creamos la URL estructurada según el formato exacto de Google Calendar API
             return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Turno: ' + tarea)}&dates=${fechaFormateada}T${inicioFormateado}/${fechaFormateada}T${finFormateado}&details=Gestionado+en+ShiftPlus.&sf=true&output=xml`;
         }
 
@@ -378,13 +382,19 @@
         }
 
         function showApp(isAdmin, name) {
+            // Cambio visual de pantallas principales
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('app-interface').classList.remove('hidden');
+            
+            // Establecer el badge superior del usuario
             document.getElementById('user-badge').innerText = name.toUpperCase();
+            
             if (Notification.permission === "granted") { actualizarBotonAlarmas(); }
 
+            // Control estricto de visibilidad según rol e inyección limpia de elementos
             if (isAdmin) {
                 document.getElementById('admin-view').classList.remove('hidden');
+                document.getElementById('worker-welcome').classList.add('hidden');
                 renderTurns(true);
             } else {
                 document.getElementById('admin-view').classList.add('hidden');
@@ -395,23 +405,28 @@
 
         function renderTurns(isAdmin, filterUser = "") {
             const container = document.getElementById('shifts-container');
-            container.innerHTML = "";
+            if (!container) return;
             
+            container.innerHTML = "";
             const currentTurns = getTurns();
+            
+            // Filtrado inequívoco de la lista de registros
             const list = isAdmin ? currentTurns : currentTurns.filter(t => t.worker === filterUser.toLowerCase());
 
             if (list.length === 0) {
                 container.innerHTML = `
-                    <div class="col-span-full py-16 text-center glass-card rounded-2xl border-2 border-dashed border-white/5">
+                    <div class="col-span-full py-16 text-center glass-card rounded-2xl border-2 border-dashed border-white/5 w-full">
                         <i class="fa-solid fa-folder-open text-4xl text-slate-600 mb-3"></i>
                         <p class="text-slate-400 font-medium text-sm">No existen registros vinculados.</p>
                     </div>`;
                 return;
             }
 
+            // Construcción del Layout Dinámico de los Turnos
             list.forEach((t) => {
                 const urlCalendar = generarEnlaceCalendar(t.task, t.date, t.start, t.end);
-                container.innerHTML += `
+                
+                const cardHtml = `
                     <div class="glass-card p-6 md:p-7 rounded-2xl flex flex-col justify-between group animate-smart">
                         <div>
                             <div class="flex justify-between items-center mb-5">
@@ -441,6 +456,8 @@
                             </div>
                         </div>
                     </div>`;
+                
+                container.insertAdjacentHTML('beforeend', cardHtml);
             });
         }
 
