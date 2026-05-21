@@ -7,19 +7,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
         
         body, html {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #020617;
-            width: 100% !important;
-            height: 100% !important;
+            background-color: #020617;
+            width: 100%;
+            min-height: 100%;
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
         }
 
-        /* خلفية النيون المتحركة الفخمة */
         .neon-bg {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -27,161 +25,76 @@
             overflow: hidden;
             background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
         }
-        .blur-blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.15;
-            animation: float 12s infinite alternate ease-in-out;
-        }
-        @keyframes float {
-            0% { transform: translateY(0px) scale(1); }
-            100% { transform: translateY(50px) scale(1.2); }
-        }
 
-        /* تأثير الزجاج المتطور */
         .glass-card {
-            background: rgba(15, 23, 42, 0.45);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .glass-card:hover {
-            border-color: rgba(99, 102, 241, 0.25);
-            box-shadow: 0 40px 70px -10px rgba(79, 70, 229, 0.15);
         }
 
         .glass-nav {
-            background: rgba(2, 6, 23, 0.7);
+            background: rgba(2, 6, 23, 0.8);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        /* تأثيرات الأزرار الاحترافية */
         .btn-primary {
             background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
-            box-shadow: 0 4px 25px rgba(79, 70, 229, 0.35);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(79, 70, 229, 0.55);
-            filter: brightness(1.15);
         }
 
         .btn-secondary {
             background: linear-gradient(135deg, #d946ef 0%, #a855f7 100%);
-            box-shadow: 0 4px 25px rgba(217, 70, 239, 0.25);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(217, 70, 239, 0.45);
-            filter: brightness(1.15);
         }
 
         .custom-input {
             background: rgba(2, 6, 23, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .custom-input:focus {
-            border-color: #818cf8;
-            box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.2);
-            background: rgba(2, 6, 23, 0.85);
-        }
-
-        @keyframes customFadeIn {
-            from { opacity: 0; transform: translateY(20px); filter: blur(6px); }
-            to { opacity: 1; transform: translateY(0); filter: blur(0); }
-        }
-        .animate-smart {
-            animation: customFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        /* Líneas de cuadrícula sutiles para el panel visual wow */
-        .grid-bg {
-            background-size: 40px 40px;
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
         }
     </style>
 </head>
-<body class="text-slate-200 min-h-screen selection:bg-indigo-500 selection:text-white">
+<body class="text-slate-200">
 
-    <div class="neon-bg">
-        <div class="blur-blob bg-indigo-500 w-96 h-96 -top-20 -left-20"></div>
-        <div class="blur-blob bg-purple-500 w-80 h-80 top-1/2 right-10" style="animation-delay: -4s;"></div>
-        <div class="blur-blob bg-blue-600 w-[500px] h-[500px] -bottom-20 left-1/3 opacity-10" style="animation-delay: -6s;"></div>
-    </div>
+    <div class="neon-bg"></div>
 
-    <div id="login-screen" class="fixed inset-0 grid grid-cols-1 lg:grid-cols-12 z-50 overflow-y-auto lg:overflow-hidden">
+    <div id="login-screen" class="w-full min-h-screen grid grid-cols-1 lg:grid-cols-12 relative z-10">
         
-        <div class="hidden lg:flex lg:col-span-7 flex-col justify-between p-12 relative overflow-hidden grid-bg border-r border-white/5">
-            <div class="absolute -top-40 -right-40 w-[600px] h-[600px] bg-indigo-600/10 rounded-full filter blur-[120px]"></div>
-            
-            <div class="flex items-center gap-3 relative z-10 animate-smart">
-                <div class="w-10 h-10 bg-indigo-600/20 border border-indigo-500/30 rounded-xl flex items-center justify-center backdrop-blur-md">
+        <div class="hidden lg:flex lg:col-span-7 flex-col justify-between p-12 relative border-r border-white/5">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-indigo-600/20 border border-indigo-500/30 rounded-xl flex items-center justify-center">
                     <i class="fa-solid fa-shield-halved text-indigo-400 text-sm"></i>
                 </div>
                 <span class="text-xs font-bold uppercase tracking-[0.25em] text-indigo-300">Entorno Corporativo Seguro</span>
             </div>
 
-            <div class="space-y-8 relative z-10 my-auto max-w-xl animate-smart" style="animation-delay: 0.1s;">
+            <div class="space-y-8 my-auto max-w-xl">
                 <div class="space-y-4">
                     <span class="px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wider uppercase bg-indigo-500/10 border border-indigo-500/30 text-indigo-300">v3.2 Quantum Live</span>
                     <h2 class="text-5xl font-black text-white tracking-tight leading-[1.1]">
                         Optimiza tus turnos. <br>
                         <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-blue-400 to-purple-400">Controla el tiempo.</span>
                     </h2>
-                    <p class="text-slate-400 text-base leading-relaxed">
-                        Bienvenido a la versión profesional de ShiftPlus. Accede a tu panel centralizado para gestionar cuadrantes de operaciones, flujos críticos y ventanas horarias en tiempo real.
+                    <p class="text-slate-400 text-base">
+                        Bienvenido a la versión profesional de ShiftPlus. Accede a tu panel centralizado para gestionar cuadrantes de operaciones.
                     </p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 pt-4">
-                    <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-4 backdrop-blur-sm hover:border-white/10 transition-colors">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs">
-                                <i class="fa-solid fa-chart-line"></i>
-                            </div>
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Rendimiento</span>
-                        </div>
-                        <p class="text-2xl font-extrabold text-white">99.8%</p>
-                        <span class="text-[10px] text-emerald-400 font-medium"><i class="fa-solid fa-arrow-up text-[8px] mr-1"></i> Flujo óptimo</span>
-                    </div>
-
-                    <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-4 backdrop-blur-sm hover:border-white/10 transition-colors">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs">
-                                <i class="fa-solid fa-server"></i>
-                            </div>
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Nodos Cloud</span>
-                        </div>
-                        <p class="text-2xl font-extrabold text-white">Activos</p>
-                        <span class="text-[10px] text-indigo-400 font-medium">Sistemas estables</span>
-                    </div>
                 </div>
             </div>
 
-            <div class="text-slate-500 text-xs flex items-center gap-6 relative z-10 animate-smart" style="animation-delay: 0.2s;">
+            <div class="text-slate-500 text-xs">
                 <span>&copy; 2026 ShiftPlus Enterprise.</span>
-                <span class="flex items-center gap-1.5"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Sincronizado</span>
             </div>
         </div>
 
-        <div class="col-span-1 lg:col-span-5 flex items-center justify-center p-4 md:p-8 lg:p-12 relative">
-            <div class="glass-card p-8 md:p-11 rounded-[2.5rem] w-full max-w-md text-center animate-smart shadow-2xl">
+        <div class="col-span-1 lg:col-span-5 flex items-center justify-center p-4">
+            <div class="glass-card p-8 md:p-11 rounded-[2.5rem] w-full max-w-md text-center shadow-2xl">
                 <div class="flex justify-center mb-6">
-                    <div class="w-20 h-20 bg-gradient-to-tr from-indigo-600 to-blue-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-500/30 transform rotate-6 hover:rotate-0 transition-transform duration-300">
+                    <div class="w-20 h-20 bg-gradient-to-tr from-indigo-600 to-blue-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-500/30">
                         <i class="fa-solid fa-calendar-minus text-white text-3xl"></i>
                     </div>
                 </div>
                 <h1 class="text-4xl font-black text-white tracking-tight mb-1.5">Shift<span class="text-indigo-400">Plus</span></h1>
-                <p class="text-slate-400 text-[10px] font-bold Logan tracking-[0.2em] uppercase mb-9">Enterprise Schedule Manager</p>
+                <p class="text-slate-400 text-[10px] font-bold tracking-[0.2em] uppercase mb-9">Enterprise Schedule Manager</p>
                 
                 <div class="space-y-6 text-left">
                     <div>
@@ -192,7 +105,7 @@
                         </div>
                     </div>
                     
-                    <div id="pass-container" class="hidden animate-smart">
+                    <div id="pass-container" class="hidden">
                         <label class="block text-[11px] font-bold text-slate-400 mb-2.5 uppercase tracking-wider pl-1">Contraseña de Acceso</label>
                         <div class="relative">
                             <i class="fa-solid fa-lock absolute left-4 top-4 text-slate-500"></i>
@@ -209,9 +122,9 @@
 
     </div>
 
-    <div id="app-interface" class="hidden min-h-screen flex flex-col">
-        <nav class="glass-nav sticky top-0 z-40">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
+    <div id="app-interface" class="hidden w-full min-h-screen relative z-10">
+        <nav class="glass-nav sticky top-0 z-40 w-full">
+            <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <div class="w-11 h-11 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
                         <i class="fa-solid fa-calendar-minus text-white text-base"></i>
@@ -219,71 +132,69 @@
                     <span class="text-2xl font-black text-white tracking-tight">Shift<span class="text-indigo-400">Plus</span></span>
                 </div>
                 
-                <div class="flex items-center gap-3">
-                    <button id="btn-alarmas" onclick="solicitarPermisoNotificaciones()" class="bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2 border border-amber-500/20 shadow-lg shadow-amber-500/5">
-                        <i class="fa-solid fa-bell animate-bounce"></i> <span class="hidden sm:inline">Alertas</span>
+                <div class="flex items-center gap-2">
+                    <button id="btn-alarmas" onclick="solicitarPermisoNotificaciones()" class="bg-amber-500/10 text-amber-400 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 border border-amber-500/20">
+                        <i class="fa-solid fa-bell"></i> <span class="hidden sm:inline">Alertas</span>
                     </button>
 
-                    <div class="flex items-center gap-2.5 bg-white/5 border border-white/10 px-4 py-2.5 rounded-xl">
+                    <div class="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-2 rounded-xl">
                         <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
                         <span id="user-badge" class="text-xs font-bold uppercase tracking-wider text-slate-300"></span>
                     </div>
                     
-                    <button onclick="logout()" class="w-11 h-11 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center shadow-lg shadow-rose-500/5" title="Desconectar">
+                    <button onclick="logout()" class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center" title="Desconectar">
                         <i class="fa-solid fa-power-off text-sm"></i>
                     </button>
                 </div>
             </div>
         </nav>
 
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full">
-            <section id="admin-view" class="hidden mb-12 animate-smart">
-                <div class="glass-card p-6 md:p-9 rounded-3xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
-                    <h2 class="text-xl font-bold text-white mb-7 flex items-center gap-2.5">
-                        <i class="fa-solid fa-circle-plus text-indigo-400 text-lg"></i> Planificación de Nueva Jornada
+        <main class="max-w-7xl mx-auto px-4 py-8 w-full block">
+            <section id="admin-view" class="hidden w-full mb-8">
+                <div class="glass-card p-6 rounded-3xl w-full block">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-plus text-indigo-400"></i> Planificación de Nueva Jornada
                     </h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div class="flex flex-col gap-2">
-                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide pl-1">Operario / Trabajador</label>
-                            <input id="new-worker" type="text" placeholder="Ej: Antonio" class="p-4 custom-input rounded-xl text-white text-sm outline-none">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Operario / Trabajador</label>
+                            <input id="new-worker" type="text" placeholder="Ej: Antonio" class="p-3.5 custom-input rounded-xl text-white text-sm outline-none">
                         </div>
-                        <div class="flex flex-col gap-2">
-                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide pl-1">Fecha Asignada</label>
-                            <input id="new-date" type="date" class="p-4 custom-input rounded-xl text-white text-sm outline-none text-slate-300">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Fecha Asignada</label>
+                            <input id="new-date" type="date" class="p-3.5 custom-input rounded-xl text-white text-sm outline-none text-slate-300">
                         </div>
-                        <div class="flex flex-col gap-2">
-                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide pl-1">Hora Entrada</label>
-                            <input id="new-start" type="time" value="09:00" class="p-4 custom-input rounded-xl text-white text-sm outline-none font-semibold text-indigo-300">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Hora Entrada</label>
+                            <input id="new-start" type="time" value="09:00" class="p-3.5 custom-input rounded-xl text-white text-sm outline-none font-semibold text-indigo-300">
                         </div>
-                        <div class="flex flex-col gap-2">
-                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide pl-1">Hora Salida</label>
-                            <input id="new-end" type="time" value="17:00" class="p-4 custom-input rounded-xl text-white text-sm outline-none font-semibold text-indigo-300">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Hora Salida</label>
+                            <input id="new-end" type="time" value="17:00" class="p-3.5 custom-input rounded-xl text-white text-sm outline-none font-semibold text-indigo-300">
                         </div>
                     </div>
-                    <div class="mt-6 flex flex-col md:flex-row gap-5 items-end">
-                        <div class="flex flex-col gap-2 flex-1 w-full">
-                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide pl-1">Especificación del Rol o Tarea</label>
-                            <input id="new-task" type="text" placeholder="Ej: Monitorización de Infraestructuras" class="p-4 custom-input rounded-xl text-white text-sm outline-none w-full">
+                    <div class="mt-4 flex flex-col md:flex-row gap-4 items-end w-full">
+                        <div class="flex flex-col gap-1.5 flex-1 w-full">
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Especificación del Rol o Tarea</label>
+                            <input id="new-task" type="text" placeholder="Ej: Monitorización de Infraestructuras" class="p-3.5 custom-input rounded-xl text-white text-sm outline-none w-full">
                         </div>
-                        <button onclick="addTurn()" class="w-full md:w-auto px-9 py-4 btn-secondary text-white font-bold rounded-xl text-sm whitespace-nowrap h-[54px] flex items-center justify-center gap-2">
+                        <button onclick="addTurn()" class="w-full md:w-auto px-6 py-3.5 btn-secondary text-white font-bold rounded-xl text-sm whitespace-nowrap flex items-center justify-center gap-2">
                             <i class="fa-solid fa-floppy-disk"></i> Registrar Turno
                         </button>
                     </div>
                 </div>
             </section>
 
-            <div id="worker-welcome" class="hidden mb-10 animate-smart">
-                <h2 class="text-4xl font-extrabold text-white tracking-tight mb-2">Cuadrante de Operaciones</h2>
-                <p class="text-sm text-slate-400">Consulta tus turnos asignados y tareas activas en tiempo real.</p>
+            <div id="worker-welcome" class="hidden mb-6 w-full">
+                <h2 class="text-3xl font-extrabold text-white tracking-tight mb-1">Cuadrante de Operaciones</h2>
+                <p class="text-xs text-slate-400">Consulta tus turnos asignados y tareas activas en tiempo real.</p>
             </div>
 
-            <div id="shifts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-smart"></div>
+            <div id="shifts-container" class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 block clear-both"></div>
         </main>
     </div>
 
     <script>
-        // INICIALIZACIÓN COMPLETA DE BASE DE DATOS LOCAL
         function inicializarDB() {
             if (!sessionStorage.getItem('turns_db')) {
                 const initialTurns = [
@@ -296,13 +207,8 @@
         }
         inicializarDB();
 
-        function getTurns() { 
-            return JSON.parse(sessionStorage.getItem('turns_db')) || []; 
-        }
-        
-        function saveTurns(array) { 
-            sessionStorage.setItem('turns_db', JSON.stringify(array)); 
-        }
+        function getTurns() { return JSON.parse(sessionStorage.getItem('turns_db')) || []; }
+        function saveTurns(array) { sessionStorage.setItem('turns_db', JSON.stringify(array)); }
 
         function solicitarPermisoNotificaciones() {
             if (!("Notification" in window)) return;
@@ -317,16 +223,14 @@
         function actualizarBotonAlarmas() {
             const btn = document.getElementById('btn-alarmas');
             if(btn) {
-                btn.className = "bg-emerald-500/10 text-emerald-400 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 border border-emerald-500/20 shadow-lg shadow-emerald-500/5";
+                btn.className = "bg-emerald-500/10 text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 border border-emerald-500/20";
                 btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span class="hidden sm:inline">Activas</span>`;
             }
         }
 
         function lanzarNotificacionNuevoTurno(trabajador, tarea) {
             if (Notification.permission === "granted") {
-                new Notification("🚀 Nuevo Turno Asignado", {
-                    body: `Operario: ${trabajador.toUpperCase()} -> Tarea: ${tarea}`
-                });
+                new Notification("🚀 Nuevo Turno Asignado", { body: `Operario: ${trabajador.toUpperCase()} -> Tarea: ${tarea}` });
             }
         }
 
@@ -382,22 +286,23 @@
         }
 
         function showApp(isAdmin, name) {
-            // Cambio visual de pantallas principales
-            document.getElementById('login-screen').classList.add('hidden');
+            // Modificación directa de visualización limpia (Cambiamos de flex oculto a bloque nativo)
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-interface').style.display = 'block';
             document.getElementById('app-interface').classList.remove('hidden');
             
-            // Establecer el badge superior del usuario
             document.getElementById('user-badge').innerText = name.toUpperCase();
             
             if (Notification.permission === "granted") { actualizarBotonAlarmas(); }
 
-            // Control estricto de visibilidad según rol e inyección limpia de elementos
             if (isAdmin) {
+                document.getElementById('admin-view').style.display = 'block';
                 document.getElementById('admin-view').classList.remove('hidden');
-                document.getElementById('worker-welcome').classList.add('hidden');
+                document.getElementById('worker-welcome').style.display = 'none';
                 renderTurns(true);
             } else {
-                document.getElementById('admin-view').classList.add('hidden');
+                document.getElementById('admin-view').style.display = 'none';
+                document.getElementById('worker-welcome').style.display = 'block';
                 document.getElementById('worker-welcome').classList.remove('hidden');
                 renderTurns(false, name);
             }
@@ -410,49 +315,47 @@
             container.innerHTML = "";
             const currentTurns = getTurns();
             
-            // Filtrado inequívoco de la lista de registros
             const list = isAdmin ? currentTurns : currentTurns.filter(t => t.worker === filterUser.toLowerCase());
 
             if (list.length === 0) {
                 container.innerHTML = `
-                    <div class="col-span-full py-16 text-center glass-card rounded-2xl border-2 border-dashed border-white/5 w-full">
-                        <i class="fa-solid fa-folder-open text-4xl text-slate-600 mb-3"></i>
-                        <p class="text-slate-400 font-medium text-sm">No existen registros vinculados.</p>
+                    <div class="col-span-full py-12 text-center glass-card rounded-2xl w-full block">
+                        <i class="fa-solid fa-folder-open text-3xl text-slate-600 mb-2"></i>
+                        <p class="text-slate-400 text-sm">No existen registros vinculados.</p>
                     </div>`;
                 return;
             }
 
-            // Construcción del Layout Dinámico de los Turnos
             list.forEach((t) => {
                 const urlCalendar = generarEnlaceCalendar(t.task, t.date, t.start, t.end);
                 
                 const cardHtml = `
-                    <div class="glass-card p-6 md:p-7 rounded-2xl flex flex-col justify-between group animate-smart">
+                    <div class="glass-card p-6 rounded-2xl flex flex-col justify-between w-full block h-full">
                         <div>
-                            <div class="flex justify-between items-center mb-5">
-                                <div class="bg-indigo-500/10 text-indigo-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-indigo-500/20 flex items-center gap-2">
-                                    <i class="fa-regular fa-calendar text-[11px]"></i> ${t.date}
+                            <div class="flex justify-between items-center mb-4">
+                                <div class="bg-indigo-500/10 text-indigo-300 text-xs font-bold px-2.5 py-1 rounded-lg border border-indigo-500/20">
+                                    <i class="fa-regular fa-calendar mr-1"></i> ${t.date}
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <a href="${urlCalendar}" target="_blank" title="Añadir a Google Calendar" class="w-9 h-9 rounded-xl bg-white/5 text-slate-400 hover:bg-indigo-500/20 hover:text-indigo-400 transition-colors flex items-center justify-center text-xs border border-white/5">
+                                    <a href="${urlCalendar}" target="_blank" class="w-8 h-8 rounded-xl bg-white/5 text-slate-400 flex items-center justify-center text-xs border border-white/5">
                                         <i class="fa-solid fa-calendar-plus"></i>
                                     </a>
                                     ${isAdmin ? `
-                                    <button onclick="deleteTurn(${t.id})" class="w-9 h-9 rounded-xl bg-white/5 text-slate-400 hover:bg-rose-500/20 hover:text-rose-400 transition-colors flex items-center justify-center border border-white/5">
+                                    <button onclick="deleteTurn(${t.id})" class="w-8 h-8 rounded-xl bg-white/5 text-slate-400 hover:text-rose-400 flex items-center justify-center border border-white/5">
                                         <i class="fa-solid fa-trash-can text-xs"></i>
                                     </button>` : ''}
                                 </div>
                             </div>
-                            <p class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1.5">${isAdmin ? 'Operario: ' + t.worker.toUpperCase() : 'Misión y Objetivos'}</p>
-                            <h4 class="text-lg font-bold text-white leading-snug mb-6 group-hover:text-indigo-300 transition-colors">${t.task}</h4>
+                            <p class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1">${isAdmin ? 'Operario: ' + t.worker.toUpperCase() : 'Misión y Objetivos'}</p>
+                            <h4 class="text-base font-bold text-white mb-4">${t.task}</h4>
                         </div>
-                        <div class="flex items-center gap-3.5 p-4 bg-slate-950/40 rounded-xl border border-white/5">
-                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white text-sm shadow-md">
+                        <div class="flex items-center gap-3 p-3 bg-slate-950/60 rounded-xl border border-white/5 mt-auto">
+                            <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs">
                                 <i class="fa-solid fa-clock"></i>
                             </div>
                             <div>
-                                <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Ventana de Horas</p>
-                                <span class="text-white font-extrabold text-lg tracking-tight">${t.start} <span class="text-indigo-400 font-normal text-sm mx-1">a</span> ${t.end}</span>
+                                <p class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Ventana de Horas</p>
+                                <span class="text-white font-extrabold text-base">${t.start} <span class="text-indigo-400 text-xs font-normal">a</span> ${t.end}</span>
                             </div>
                         </div>
                     </div>`;
@@ -478,7 +381,7 @@
                 
                 document.getElementById('new-worker').value = "";
                 document.getElementById('new-task').value = "";
-                alert("✅ Registro completado en la base de datos.");
+                alert("✅ Registro completado.");
             } else {
                 alert("Error: Es obligatorio rellenar todos los campos.");
             }
@@ -495,13 +398,14 @@
 
         function logout() {
             esAdminEtapa = false;
-            document.getElementById('app-interface').classList.add('hidden');
-            document.getElementById('worker-welcome').classList.add('hidden');
+            document.getElementById('app-interface').style.display = 'none';
+            document.getElementById('admin-view').style.display = 'none';
+            document.getElementById('worker-welcome').style.display = 'none';
             document.getElementById('pass-container').classList.add('hidden');
             document.getElementById('user-input').value = "";
             document.getElementById('pass-input').value = "";
             document.getElementById('login-btn').innerText = "Continuar";
-            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('login-screen').style.display = 'grid';
         }
     </script>
 </body>
