@@ -57,7 +57,7 @@
             background: rgba(2, 6, 23, 0.7);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-b: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         /* تأثيرات الأزرار الاحترافية */
@@ -323,10 +323,14 @@
         }
 
         function generarEnlaceCalendar(tarea, fecha, horaInicio, horaFin) {
+            // Limpiamos los guiones de la fecha: "2026-05-18" -> "20260518"
             const fechaFormateada = fecha.replace(/-/g, '');
-            const inicioFormateado = horaInicio.replace(/:/g, '');
-            const finFormateado = horaFin.replace(/:/g, '');
-            return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Turno: ' + tarea)}&dates=${fechaFormateada}T${inicioFormateado}00/${fechaFormateada}T${finFormateado}00&details=Gestionado+en+ShiftPlus.&sf=true&output=xml`;
+            // Limpiamos los dos puntos de las horas y concatenamos segundos '00': "09:00" -> "090000"
+            const inicioFormateado = horaInicio.replace(/:/g, '') + '00';
+            const finFormateado = horaFin.replace(/:/g, '') + '00';
+            
+            // Creamos la URL estructurada según el formato exacto de Google Calendar API
+            return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Turno: ' + tarea)}&dates=${fechaFormateada}T${inicioFormateado}/${fechaFormateada}T${finFormateado}&details=Gestionado+en+ShiftPlus.&sf=true&output=xml`;
         }
 
         let esAdminEtapa = false;
